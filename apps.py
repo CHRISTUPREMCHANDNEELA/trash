@@ -53,5 +53,9 @@ def transfer():
     else:
         return jsonify(success=False, message="Insufficient balance"), 400
 
+@app.route("/")
+def home():
+    return "Banking Portal Backend is running!"
+
 if __name__ == "__main__":
     app.run(debug=True)
