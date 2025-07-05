@@ -3,9 +3,8 @@ from flask_cors import CORS
 from datetime import datetime
 
 app = Flask(__name__)
-CORS(app)  # Allow frontend to communicate with backend (for local testing)
+CORS(app)
 
-# 🧑 Mock user data
 users = {
     "user1": {
         "password": "pass123",
@@ -19,7 +18,10 @@ users = {
     }
 }
 
-# 🔐 Login endpoint
+@app.route("/")
+def home():
+    return "Banking Portal Backend is running!"
+
 @app.route("/api/login", methods=["POST"])
 def login():
     data = request.get_json()
@@ -31,20 +33,17 @@ def login():
         return jsonify(success=True, account=user["account"])
     return jsonify(success=False, message="Invalid credentials"), 401
 
-# 💸 Fund transfer endpoint
 @app.route("/api/transfer", methods=["POST"])
 def transfer():
     data = request.get_json()
     to_account = data.get("toAccount")
     amount = float(data.get("amount"))
 
-    user = users.get("user1")  # Simulating single logged-in user
+    user = users.get("user1")
     account = user["account"]
 
     if account["balance"] >= amount:
-        # Deduct from balance
         account["balance"] -= amount
-        # Log the transaction
         account["transactions"].append({
             "type": "Transfer",
             "amount": amount,
@@ -54,6 +53,5 @@ def transfer():
     else:
         return jsonify(success=False, message="Insufficient balance"), 400
 
-# 🏃 Run the Flask server
 if __name__ == "__main__":
     app.run(debug=True)
