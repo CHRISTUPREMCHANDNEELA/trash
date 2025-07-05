@@ -116,6 +116,6 @@ def init_files():
     if not os.path.exists(TRANSACTIONS_FILE):
         save_transactions([])
 
-if _name_ == '_main_':
+if _name_ == '__main__':
     init_files()  # Initialize JSON files before app runs
     app.run(debug=True)
