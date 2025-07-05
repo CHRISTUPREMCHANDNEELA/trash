@@ -1,175 +1,107 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8">
   <title>Saraswat Bank Portal</title>
+  <meta charset="UTF-8" />
   <style>
     body {
-      font-family: 'Segoe UI', sans-serif;
-      background-color: #f2f2f2;
-      margin: 0;
-      padding: 0;
-    }
-
-    .container {
-      width: 400px;
-      margin: 60px auto;
+      font-family: Arial;
+      max-width: 500px;
+      margin: 40px auto;
       padding: 20px;
-      background-color: #fff;
-      border-radius: 10px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      background: #f4f4f4;
     }
-
-    h2, h3 {
-      text-align: center;
-      color: #333;
-    }
-
     input, button {
-      width: 100%;
       padding: 10px;
-      margin: 8px 0;
-      box-sizing: border-box;
-      border-radius: 5px;
-      border: 1px solid #ccc;
+      margin: 5px 0;
+      width: 100%;
     }
-
-    button {
-      background-color: #007bff;
-      color: white;
-      border: none;
-      cursor: pointer;
-    }
-
-    button:hover {
-      background-color: #0056b3;
-    }
-
-    .hidden {
-      display: none;
-    }
-
-    ul {
-      list-style: none;
-      padding: 0;
-    }
-
-    .success {
-      color: green;
-    }
-
-    .error {
-      color: red;
-    }
-
     .section {
-      margin-top: 20px;
+      margin-top: 30px;
+      background: white;
+      padding: 15px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px #ccc;
     }
   </style>
 </head>
 <body>
+  <h2>🔐 Saraswat Bank Login</h2>
+  <input type="text" id="username" placeholder="Username (e.g. user1)">
+  <input type="password" id="password" placeholder="Password (e.g. pass123)">
+  <button onclick="login()">Login</button>
 
-  <div class="container" id="loginForm">
-    <h2>Saraswat Bank Login</h2>
-    <input type="text" id="username" placeholder="Username" />
-    <input type="password" id="password" placeholder="Password" />
-    <button onclick="login()">Login</button>
-    <p id="loginMessage" class="error"></p>
-  </div>
+  <div id="accountSection" class="section" style="display: none;">
+    <h3>💳 Account Info</h3>
+    <p><strong>Account No:</strong> <span id="accNum"></span></p>
+    <p><strong>Balance:</strong> ₹<span id="balance"></span></p>
 
-  <div class="container hidden" id="dashboard">
-    <h2>Welcome, <span id="displayUser"></span></h2>
+    <h4>💸 Transfer Funds</h4>
+    <input type="text" id="toAccount" placeholder="To Account">
+    <input type="number" id="amount" placeholder="Amount to Transfer">
+    <button onclick="transfer()">Send</button>
 
-    <div class="section">
-      <h3>Account Information</h3>
-      <p><strong>Account Number:</strong> <span id="accountNumber"></span></p>
-      <p><strong>Balance:</strong> ₹<span id="balance"></span></p>
-    </div>
-
-    <div class="section">
-      <h3>Fund Transfer</h3>
-      <input type="text" id="toAccount" placeholder="To Account Number" />
-      <input type="number" id="amount" placeholder="Amount" />
-      <button onclick="transfer()">Transfer</button>
-      <p id="transferMessage"></p>
-    </div>
-
-    <div class="section">
-      <h3>Transaction History</h3>
-      <ul id="transactionList"></ul>
-    </div>
+    <h4>📜 Transaction History</h4>
+    <ul id="transactions"></ul>
   </div>
 
   <script>
-    const mockUser = {
-      username: "user1",
-      password: "pass123",
-      account: {
-        accountNumber: "SB123456789",
-        balance: 5000,
-        transactions: [
-          { type: "Deposit", amount: 5000, date: "2024-01-01" }
-        ]
-      }
-    };
-
-    let currentUser = null;
+    let account = null;
 
     function login() {
-      const username = document.getElementById("username").value;
-      const password = document.getElementById("password").value;
-
-      if (username === mockUser.username && password === mockUser.password) {
-        currentUser = JSON.parse(JSON.stringify(mockUser)); // clone mock data
-        document.getElementById("loginForm").classList.add("hidden");
-        document.getElementById("dashboard").classList.remove("hidden");
-        document.getElementById("displayUser").textContent = username;
-        loadDashboard();
-      } else {
-        document.getElementById("loginMessage").textContent = "Invalid username or password";
-      }
-    }
-
-    function loadDashboard() {
-      document.getElementById("accountNumber").textContent = currentUser.account.accountNumber;
-      document.getElementById("balance").textContent = currentUser.account.balance.toFixed(2);
-
-      const list = document.getElementById("transactionList");
-      list.innerHTML = "";
-      currentUser.account.transactions.forEach(tx => {
-        const item = document.createElement("li");
-        item.textContent = `${tx.type} of ₹${tx.amount} on ${tx.date}`;
-        list.appendChild(item);
+      fetch("http://127.0.0.1:5000/api/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          username: document.getElementById("username").value,
+          password: document.getElementById("password").value
+        })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          account = data.account;
+          document.getElementById("accountSection").style.display = "block";
+          document.getElementById("accNum").innerText = account.accountNumber;
+          document.getElementById("balance").innerText = account.balance.toFixed(2);
+          renderTransactions(account.transactions);
+        } else {
+          alert("Login failed: " + data.message);
+        }
       });
     }
 
     function transfer() {
-      const toAccount = document.getElementById("toAccount").value;
       const amount = parseFloat(document.getElementById("amount").value);
-      const message = document.getElementById("transferMessage");
+      const toAccount = document.getElementById("toAccount").value;
 
-      if (!toAccount || isNaN(amount) || amount <= 0) {
-        message.textContent = "Please enter valid account and amount";
-        message.className = "error";
-        return;
-      }
+      fetch("http://127.0.0.1:5000/api/transfer", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ toAccount, amount })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          account = data.account;
+          document.getElementById("balance").innerText = account.balance.toFixed(2);
+          renderTransactions(account.transactions);
+          alert("Transfer successful!");
+        } else {
+          alert("Transfer failed: " + data.message);
+        }
+      });
+    }
 
-      if (currentUser.account.balance >= amount) {
-        currentUser.account.balance -= amount;
-        currentUser.account.transactions.push({
-          type: "Transfer",
-          amount: amount,
-          date: new Date().toISOString().split("T")[0]
-        });
-        message.textContent = "Transfer successful!";
-        message.className = "success";
-        loadDashboard();
-      } else {
-        message.textContent = "Insufficient balance!";
-        message.className = "error";
-      }
+    function renderTransactions(txns) {
+      const list = document.getElementById("transactions");
+      list.innerHTML = "";
+      txns.slice().reverse().forEach(txn => {
+        const li = document.createElement("li");
+        li.innerText = `${txn.date}: ${txn.type} ₹${txn.amount}`;
+        list.appendChild(li);
+      });
     }
   </script>
-
 </body>
 </html>

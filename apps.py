@@ -5,6 +5,7 @@ from datetime import datetime
 app = Flask(__name__)
 CORS(app)
 
+# 🔐 Sample user data
 users = {
     "user1": {
         "password": "pass123",
@@ -18,10 +19,7 @@ users = {
     }
 }
 
-@app.route("/")
-def home():
-    return "Banking Portal Backend is running!"
-
+# Login API
 @app.route("/api/login", methods=["POST"])
 def login():
     data = request.get_json()
@@ -33,6 +31,7 @@ def login():
         return jsonify(success=True, account=user["account"])
     return jsonify(success=False, message="Invalid credentials"), 401
 
+# Fund Transfer API
 @app.route("/api/transfer", methods=["POST"])
 def transfer():
     data = request.get_json()
@@ -53,9 +52,6 @@ def transfer():
     else:
         return jsonify(success=False, message="Insufficient balance"), 400
 
-@app.route("/")
-def home():
-    return "Banking Portal Backend is running!"
-
+# Run server
 if __name__ == "__main__":
     app.run(debug=True)
