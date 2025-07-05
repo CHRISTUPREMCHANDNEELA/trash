@@ -5,7 +5,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 import os
 import json
 
-app = Flask(_name_)
+app = Flask(__name__)
 CORS(app)
 app.secret_key = 'super_secret_key'
 
