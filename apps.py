@@ -58,6 +58,10 @@ def transfer():
         return jsonify(success=True, message="Transfer successful", account=account)
     else:
         return jsonify(success=False, message="Insufficient balance"), 400
+        
+@app.route("/")
+def index():
+    return render_template("index.html")
 
 # 🏃 Run the Flask server
 if __name__ == "__main__":
