@@ -1,11 +1,10 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template
 from flask_cors import CORS
 from datetime import datetime
 
 app = Flask(__name__)
 CORS(app)
 
-# 🔐 Sample user data
 users = {
     "user1": {
         "password": "pass123",
@@ -19,7 +18,10 @@ users = {
     }
 }
 
-# Login API
+@app.route("/")
+def home():
+    return render_template("index.html")
+
 @app.route("/api/login", methods=["POST"])
 def login():
     data = request.get_json()
@@ -31,7 +33,6 @@ def login():
         return jsonify(success=True, account=user["account"])
     return jsonify(success=False, message="Invalid credentials"), 401
 
-# Fund Transfer API
 @app.route("/api/transfer", methods=["POST"])
 def transfer():
     data = request.get_json()
@@ -52,6 +53,5 @@ def transfer():
     else:
         return jsonify(success=False, message="Insufficient balance"), 400
 
-# Run server
 if __name__ == "__main__":
     app.run(debug=True)
