@@ -33,11 +33,7 @@ def load_transactions():
     if not os.path.exists(TRANSACTIONS_FILE):
         return []
     with open(TRANSACTIONS_FILE, 'r') as f:
-        try:
-            txns = json.load(f)
-            return txns
-        except json.JSONDecodeError:
-            return []
+        return json.load(f)
 
 def save_transactions(txns):
     with open(TRANSACTIONS_FILE, 'w') as f:
@@ -58,6 +54,14 @@ def transfer_page():
 @app.route('/transactions')
 def txn_page():
     return render_template('transactions.html')
+
+@app.route('/api/users', methods=['GET'])
+def list_users():
+    # Debug helper: return all user account numbers
+    users = load_users()
+    accounts = [u['account_no'] for u in users]
+    print("📋 /api/users requested. Accounts:", accounts)
+    return jsonify({'accounts': accounts})
 
 @app.route('/api/login', methods=['POST'])
 def login():
@@ -87,9 +91,12 @@ def transfer():
     to_user = next((u for u in users if u['account_no'].strip() == to_account), None)
 
     print("🔍 Incoming transfer request:")
+    print("  Full request data:", data)
     print("  From user id:", data['from_user_id'])
     print("  To account:", to_account)
-    print("  Loaded user accounts:", [u['account_no'] for u in users])
+    print("  Loaded users:")
+    for u in users:
+        print(f"    id: {u['id']}, account_no: '{u['account_no']}'")
 
     if not from_user:
         print("❌ Sender not found")
