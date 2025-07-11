@@ -29,14 +29,14 @@
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           from_user_id: user.id,
-          to_account: form.get('to_account'),
+          to_account: form.get('to_account').trim(),  // Trim whitespace here
           amount: parseFloat(form.get('amount'))
         })
       })
-        .then(res => res.json())
-        .then(data => {
-          document.getElementById("resultMsg").innerText = data.message;
-        });
+      .then(res => res.json())
+      .then(data => {
+        document.getElementById("resultMsg").innerText = data.message;
+      });
     });
   </script>
 </body>
