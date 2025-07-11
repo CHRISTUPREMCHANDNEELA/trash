@@ -23,7 +23,7 @@
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          username: form.get('username').trim(),
+          username: form.get('username'),
           password: form.get('password')
         })
       })
@@ -37,7 +37,7 @@
         }
       })
       .catch(() => {
-        document.getElementById("errorMsg").innerText = "Server error. Please try again.";
+        document.getElementById("errorMsg").innerText = "Server error. Please try again later.";
       });
     });
   </script>

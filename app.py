@@ -33,7 +33,11 @@ def load_transactions():
     if not os.path.exists(TRANSACTIONS_FILE):
         return []
     with open(TRANSACTIONS_FILE, 'r') as f:
-        return json.load(f)
+        try:
+            txns = json.load(f)
+            return txns
+        except json.JSONDecodeError:
+            return []
 
 def save_transactions(txns):
     with open(TRANSACTIONS_FILE, 'w') as f:
@@ -80,7 +84,6 @@ def transfer():
 
     to_account = data['to_account'].strip()
     from_user = next((u for u in users if u['id'] == data['from_user_id']), None)
-    # Important: also strip stored account_no before comparison
     to_user = next((u for u in users if u['account_no'].strip() == to_account), None)
 
     print("🔍 Incoming transfer request:")
@@ -104,7 +107,6 @@ def transfer():
     from_user['balance'] -= data['amount']
     to_user['balance'] += data['amount']
 
-    # Round balances to 2 decimals
     from_user['balance'] = round(from_user['balance'], 2)
     to_user['balance'] = round(to_user['balance'], 2)
 

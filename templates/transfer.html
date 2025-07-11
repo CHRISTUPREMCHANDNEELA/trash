@@ -9,22 +9,27 @@
     <label>To Account Number:</label><br>
     <input type="text" name="to_account" required><br>
     <label>Amount (₹):</label><br>
-    <input type="number" name="amount" required><br><br>
+    <input type="number" name="amount" step="0.01" min="0.01" required><br><br>
     <button type="submit">Transfer</button>
   </form>
 
-  <p id="resultMsg"></p>
+  <p id="resultMsg" style="color: red;"></p>
 
   <a href="/dashboard">← Back to Dashboard</a>
 
   <script>
     const user = JSON.parse(localStorage.getItem('user'));
-    if (!user) window.location.href = '/';
+    if (!user) {
+      window.location.href = '/';
+    }
 
     document.getElementById("transferForm").addEventListener("submit", function (e) {
       e.preventDefault();
       const form = new FormData(e.target);
-      const toAccount = form.get('to_account');
+
+      const toAccount = form.get('to_account').trim();
+      const amount = parseFloat(form.get('amount'));
+
       console.log("Transferring to account:", toAccount);
 
       fetch('/api/transfer', {
@@ -32,13 +37,25 @@
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           from_user_id: user.id,
-          to_account: toAccount.trim(),  // Trim whitespace here
-          amount: parseFloat(form.get('amount'))
+          to_account: toAccount,
+          amount: amount
         })
       })
       .then(res => res.json())
       .then(data => {
-        document.getElementById("resultMsg").innerText = data.message;
+        const msgElem = document.getElementById("resultMsg");
+        if (data.status === 'success') {
+          msgElem.style.color = 'green';
+        } else {
+          msgElem.style.color = 'red';
+        }
+        msgElem.innerText = data.message;
+      })
+      .catch(err => {
+        const msgElem = document.getElementById("resultMsg");
+        msgElem.style.color = 'red';
+        msgElem.innerText = "Error processing transfer.";
+        console.error(err);
       });
     });
   </script>

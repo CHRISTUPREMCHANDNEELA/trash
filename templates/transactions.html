@@ -11,25 +11,28 @@
 
   <script>
     const user = JSON.parse(localStorage.getItem('user'));
-    if (!user) window.location.href = '/';
-
-    fetch('/api/transactions/' + user.id)
-      .then(res => res.json())
-      .then(data => {
-        const list = document.getElementById("txnList");
-        if (data.length === 0) {
-          list.innerHTML = "<li>No transactions yet.</li>";
-        } else {
-          data.forEach(t => {
-            const li = document.createElement("li");
-            li.textContent = `${t.date} - ${t.type.toUpperCase()} ₹${t.amount}`;
-            list.appendChild(li);
-          });
-        }
-      })
-      .catch(() => {
-        document.getElementById("txnList").innerHTML = "<li>Error loading transactions.</li>";
-      });
+    if (!user) {
+      window.location.href = '/';
+    } else {
+      fetch('/api/transactions/' + user.id)
+        .then(res => res.json())
+        .then(data => {
+          const list = document.getElementById("txnList");
+          if (data.length === 0) {
+            list.innerHTML = "<li>No transactions yet.</li>";
+          } else {
+            data.forEach(t => {
+              const li = document.createElement("li");
+              li.textContent = `${t.date} - ${t.type.toUpperCase()} ₹${t.amount.toFixed(2)}`;
+              list.appendChild(li);
+            });
+          }
+        })
+        .catch(err => {
+          document.getElementById("txnList").innerHTML = "<li>Error loading transactions.</li>";
+          console.error(err);
+        });
+    }
   </script>
 </body>
 </html>
