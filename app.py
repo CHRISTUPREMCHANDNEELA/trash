@@ -14,9 +14,16 @@ TRANSACTIONS_FILE = 'transactions.json'
 
 def load_users():
     if not os.path.exists(USERS_FILE):
+        print(f"Warning: {USERS_FILE} not found. Returning empty user list.")
         return []
     with open(USERS_FILE, 'r') as f:
-        return json.load(f)
+        try:
+            users = json.load(f)
+            print(f"Loaded {len(users)} users from {USERS_FILE}")
+            return users
+        except json.JSONDecodeError as e:
+            print(f"Error reading {USERS_FILE}: {e}")
+            return []
 
 def save_users(users):
     with open(USERS_FILE, 'w') as f:
@@ -75,12 +82,16 @@ def transfer():
     from_user = next((u for u in users if u['id'] == data['from_user_id']), None)
     to_user = next((u for u in users if u['account_no'] == to_account), None)
 
-    print("🔍 To account:", to_account)
-    print("✅ Existing accounts:", [u['account_no'] for u in users])
+    print("🔍 Incoming transfer request:")
+    print("  From user id:", data['from_user_id'])
+    print("  To account:", to_account)
+    print("  Loaded user accounts:", [u['account_no'] for u in users])
 
     if not from_user:
+        print("❌ Sender not found")
         return jsonify({'status': 'error', 'message': 'Sender not found'}), 404
     if not to_user:
+        print("❌ Recipient not found")
         return jsonify({'status': 'error', 'message': 'Recipient not found'}), 404
     if from_user['account_no'] == to_user['account_no']:
         return jsonify({'status': 'error', 'message': 'Cannot transfer to the same account'}), 400
@@ -103,6 +114,7 @@ def transfer():
     save_users(users)
     save_transactions(txns)
 
+    print("✅ Transfer successful")
     return jsonify({'status': 'success', 'message': 'Transfer successful'})
 
 @app.route('/api/transactions/<int:user_id>', methods=['GET'])
