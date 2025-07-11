@@ -92,7 +92,7 @@ def transfer():
     from_user['balance'] -= data['amount']
     to_user['balance'] += data['amount']
 
-    # Round balances
+    # Round balances to 2 decimals
     from_user['balance'] = round(from_user['balance'], 2)
     to_user['balance'] = round(to_user['balance'], 2)
 
@@ -104,7 +104,6 @@ def transfer():
     save_transactions(txns)
 
     return jsonify({'status': 'success', 'message': 'Transfer successful'})
-
 
 @app.route('/api/transactions/<int:user_id>', methods=['GET'])
 def get_transactions(user_id):

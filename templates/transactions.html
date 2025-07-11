@@ -22,10 +22,13 @@
         } else {
           data.forEach(t => {
             const li = document.createElement("li");
-            li.textContent = ${t.date} - ${t.type.toUpperCase()} ₹${t.amount};
+            li.textContent = `${t.date} - ${t.type.toUpperCase()} ₹${t.amount}`;
             list.appendChild(li);
           });
         }
+      })
+      .catch(() => {
+        document.getElementById("txnList").innerHTML = "<li>Error loading transactions.</li>";
       });
   </script>
 </body>

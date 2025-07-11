@@ -23,19 +23,22 @@
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          username: form.get('username'),
+          username: form.get('username').trim(),
           password: form.get('password')
         })
       })
-        .then(res => res.json())
-        .then(data => {
-          if (data.status === 'success') {
-            localStorage.setItem('user', JSON.stringify(data.user));
-            window.location.href = "/dashboard";
-          } else {
-            document.getElementById("errorMsg").innerText = data.message;
-          }
-        });
+      .then(res => res.json())
+      .then(data => {
+        if (data.status === 'success') {
+          localStorage.setItem('user', JSON.stringify(data.user));
+          window.location.href = "/dashboard";
+        } else {
+          document.getElementById("errorMsg").innerText = data.message;
+        }
+      })
+      .catch(() => {
+        document.getElementById("errorMsg").innerText = "Server error. Please try again.";
+      });
     });
   </script>
 </body>

@@ -10,18 +10,21 @@
 
   <a href="/transfer">Transfer Funds</a> |
   <a href="/transactions">Transaction History</a> |
-  <a href="/" onclick="logout()">Logout</a>
+  <a href="#" onclick="logout()">Logout</a>
 
   <script>
     const user = JSON.parse(localStorage.getItem('user'));
-    if (!user) window.location.href = '/';
-
-    document.getElementById("name").innerText = user.name;
-    document.getElementById("account_no").innerText = user.account_no;
-    document.getElementById("balance").innerText = user.balance;
+    if (!user) {
+      window.location.href = '/';
+    } else {
+      document.getElementById("name").innerText = user.name;
+      document.getElementById("account_no").innerText = user.account_no;
+      document.getElementById("balance").innerText = user.balance.toFixed(2);
+    }
 
     function logout() {
       localStorage.clear();
+      window.location.href = '/';
     }
   </script>
 </body>
