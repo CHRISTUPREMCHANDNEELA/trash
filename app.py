@@ -74,21 +74,33 @@ def transfer():
     from_user = next((u for u in users if u['id'] == data['from_user_id']), None)
     to_user = next((u for u in users if u['account_no'] == data['to_account']), None)
 
+    if not from_user:
+        return jsonify({'status': 'error', 'message': 'Sender not found'}), 404
     if not to_user:
         return jsonify({'status': 'error', 'message': 'Recipient not found'}), 404
+    if from_user['account_no'] == to_user['account_no']:
+        return jsonify({'status': 'error', 'message': 'Cannot transfer to the same account'}), 400
+    if data['amount'] <= 0:
+        return jsonify({'status': 'error', 'message': 'Amount must be greater than zero'}), 400
     if from_user['balance'] < data['amount']:
         return jsonify({'status': 'error', 'message': 'Insufficient balance'}), 400
 
     from_user['balance'] -= data['amount']
     to_user['balance'] += data['amount']
 
-    txns.append({'user_id': from_user['id'], 'type': 'transfer', 'amount': -data['amount'], 'date': datetime.utcnow().isoformat()})
-    txns.append({'user_id': to_user['id'], 'type': 'transfer', 'amount': data['amount'], 'date': datetime.utcnow().isoformat()})
+    # Round balances
+    from_user['balance'] = round(from_user['balance'], 2)
+    to_user['balance'] = round(to_user['balance'], 2)
+
+    now = datetime.utcnow().isoformat()
+    txns.append({'user_id': from_user['id'], 'type': 'transfer', 'amount': -data['amount'], 'date': now})
+    txns.append({'user_id': to_user['id'], 'type': 'transfer', 'amount': data['amount'], 'date': now})
 
     save_users(users)
     save_transactions(txns)
 
     return jsonify({'status': 'success', 'message': 'Transfer successful'})
+
 
 @app.route('/api/transactions/<int:user_id>', methods=['GET'])
 def get_transactions(user_id):
