@@ -72,7 +72,11 @@ def transfer():
     txns = load_transactions()
 
     from_user = next((u for u in users if u['id'] == data['from_user_id']), None)
-    to_user = next((u for u in users if u['account_no'] == data['to_account']), None)
+    to_account = data['to_account'].strip() 
+    to_user = next((u for u in users if u['account_no'] == data['to_account'].strip()), None)
+
+    print("Incoming transfer to:", to_account)
+    print("All accounts:", [u['account_no'] for u in users])
 
     if not from_user:
         return jsonify({'status': 'error', 'message': 'Sender not found'}), 404
