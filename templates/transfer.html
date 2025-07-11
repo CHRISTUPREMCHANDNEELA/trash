@@ -24,21 +24,21 @@
     document.getElementById("transferForm").addEventListener("submit", function (e) {
       e.preventDefault();
       const form = new FormData(e.target);
+      const toAccount = form.get('to_account');
+      console.log("Transferring to account:", toAccount);
+
       fetch('/api/transfer', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           from_user_id: user.id,
-          to_account: form.get('to_account').trim(),
+          to_account: toAccount.trim(),  // Trim whitespace here
           amount: parseFloat(form.get('amount'))
         })
       })
       .then(res => res.json())
       .then(data => {
         document.getElementById("resultMsg").innerText = data.message;
-      })
-      .catch(() => {
-        document.getElementById("resultMsg").innerText = "Error processing transfer. Please try again.";
       });
     });
   </script>

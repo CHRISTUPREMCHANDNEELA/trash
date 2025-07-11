@@ -80,7 +80,8 @@ def transfer():
 
     to_account = data['to_account'].strip()
     from_user = next((u for u in users if u['id'] == data['from_user_id']), None)
-    to_user = next((u for u in users if u['account_no'] == to_account), None)
+    # Important: also strip stored account_no before comparison
+    to_user = next((u for u in users if u['account_no'].strip() == to_account), None)
 
     print("🔍 Incoming transfer request:")
     print("  From user id:", data['from_user_id'])
@@ -93,7 +94,7 @@ def transfer():
     if not to_user:
         print("❌ Recipient not found")
         return jsonify({'status': 'error', 'message': 'Recipient not found'}), 404
-    if from_user['account_no'] == to_user['account_no']:
+    if from_user['account_no'].strip() == to_user['account_no'].strip():
         return jsonify({'status': 'error', 'message': 'Cannot transfer to the same account'}), 400
     if data['amount'] <= 0:
         return jsonify({'status': 'error', 'message': 'Amount must be greater than zero'}), 400
